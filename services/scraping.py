@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+
 import requests
 from bs4 import BeautifulSoup
 import requests
@@ -17,13 +17,13 @@ HEADERS = ({'User-Agent':
 
 #Getting the proxy list
 working_directory = os.getcwd()
-wp = pd.read_csv('/home/heptagon/Documents/Work/Products/TravelSentiments/TravelSentiments/services/Working_Proxies.csv')
+wp = pd.read_csv('Working_Proxies.csv')
 proxy_list = list(wp['http'])
 
 
 
 
-class ExtractReviews(BaseModel):
+class ExtractReviews:
     
     def __init__() -> None:
         pass

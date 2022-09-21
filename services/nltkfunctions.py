@@ -18,10 +18,9 @@ from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.collocations import *
 from textblob import TextBlob
-from pydantic import BaseModel
 
 
-class NltkTransformation(BaseModel):
+class NltkTransformation:
 
     def __init__() -> None:
         pass

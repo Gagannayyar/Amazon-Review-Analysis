@@ -1,13 +1,12 @@
 from secrets import randbelow
 import requests
 from bs4 import BeautifulSoup as bs
-from pydantic import BaseModel
 from random import choice
 import pandas as pd
 import os
 
 
-class Proxies(BaseModel):
+class Proxies:
 
     def __init__() -> None:
         pass

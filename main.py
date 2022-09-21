@@ -19,7 +19,7 @@ nltk.download('averaged_perceptron_tagger')
 #Getting the proxy listcd
 working_directory = os.getcwd()
 print(working_directory)
-wp = pd.read_csv('TravelSentiments/services/Working_Proxies.csv')
+wp = pd.read_csv('Working_Proxies.csv')
 proxy_list = list(wp['http'])
 
 #Soup Object
@@ -91,7 +91,7 @@ print("Step 11: Sentiments calculated")
 now = df[['bigrams','polarity']].groupby('bigrams')['polarity'].mean().sort_values().head(20)
 
 print(now)
-now.to_csv(r'/home/heptagon/Downloads/archive/results.csv')
+#now.to_csv(r'/home/heptagon/Downloads/archive/results.csv')
 print(f"the type of now is {type(now)}")
 end_time = datetime.datetime.now()
 print(f"Completed at {end_time}")
