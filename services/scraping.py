@@ -45,7 +45,7 @@ class ExtractReviews:
         for items in category:
             cat_list.append(items.get_text().strip())
         
-        return cat_list[1]
+        return cat_list[:2]
 
     def get_total_pages_reviews(soup_object) -> int:
         page_number = soup_object.find('span',id ='acrCustomerReviewText').text.strip(' ratings')
