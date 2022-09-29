@@ -76,7 +76,7 @@ class ExtractReviews:
                 review_list.append(items.find('span',{'data-hook': 'review-body'}).text.strip())
             url_amend = url.split('/')
             url_amend.pop()
-            time.sleep(5)
+            time.sleep(1)
         
         return review_list
 
