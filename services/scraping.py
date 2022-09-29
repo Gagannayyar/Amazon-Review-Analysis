@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import time
-from random import choice
+from random import choice, randint
 import os
 
 HEADERS = ({'User-Agent':
@@ -33,6 +33,7 @@ class ExtractReviews:
         proxy= {'http': choice(proxy_list)}
         htmldata = requests.get(url,proxies=proxy,headers=HEADERS).text
         soup = BeautifulSoup(htmldata, 'html.parser')
+        print(soup)
         return (soup)
 
     def get_product_name(soup_object) -> str:
@@ -45,7 +46,7 @@ class ExtractReviews:
         for items in category:
             cat_list.append(items.get_text().strip())
         
-        return cat_list[1]
+        return cat_list[:2]
 
     def get_total_pages_reviews(soup_object) -> int:
         page_number = soup_object.find('span',id ='acrCustomerReviewText').text.strip(' ratings')
@@ -71,12 +72,11 @@ class ExtractReviews:
             url_new = '/'.join(url_amend)
             soup_reviews = ExtractReviews.html_code(url_new,proxy)
             reviews = soup_reviews.find_all("div",{'data-hook': 'review'})
-            print("Extracting Reviews.......")
+            print(f"Extracting Reviews..Page remaining {pages-i}")
             for items in reviews:
                 review_list.append(items.find('span',{'data-hook': 'review-body'}).text.strip())
             url_amend = url.split('/')
             url_amend.pop()
-            time.sleep(5)
         
         return review_list
 

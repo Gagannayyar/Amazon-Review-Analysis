@@ -43,6 +43,7 @@ print(f"Started at {start_time}")
 df = er.list_to_dataframe(er.get_reviews_body(url=url,pages=er.get_total_pages_reviews(soup)))
 df.to_csv('review_data.csv')
 print("Step 1: Dataframe Uploaded")
+df.to_csv('review.csv')
 print(df.head(20))
 
 
