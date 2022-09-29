@@ -71,7 +71,7 @@ class ExtractReviews:
             url_new = '/'.join(url_amend)
             soup_reviews = ExtractReviews.html_code(url_new,proxy)
             reviews = soup_reviews.find_all("div",{'data-hook': 'review'})
-            print("Extracting Reviews.......")
+            print(f"Extracting Reviews..Page remaining {pages-i}")
             for items in reviews:
                 review_list.append(items.find('span',{'data-hook': 'review-body'}).text.strip())
             url_amend = url.split('/')
