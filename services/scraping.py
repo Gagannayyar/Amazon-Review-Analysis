@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import time
-from random import choice
+from random import choice, randint
 import os
 
 HEADERS = ({'User-Agent':
@@ -33,6 +33,7 @@ class ExtractReviews:
         proxy= {'http': choice(proxy_list)}
         htmldata = requests.get(url,proxies=proxy,headers=HEADERS).text
         soup = BeautifulSoup(htmldata, 'html.parser')
+        print(soup)
         return (soup)
 
     def get_product_name(soup_object) -> str:
@@ -76,7 +77,6 @@ class ExtractReviews:
                 review_list.append(items.find('span',{'data-hook': 'review-body'}).text.strip())
             url_amend = url.split('/')
             url_amend.pop()
-            time.sleep(1)
         
         return review_list
 
