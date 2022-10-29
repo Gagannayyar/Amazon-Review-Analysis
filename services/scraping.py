@@ -33,8 +33,7 @@ class ExtractReviews:
         proxy= {'http': choice(proxy_list)}
         htmldata = requests.get(url,proxies=proxy,headers=HEADERS).text
         soup = BeautifulSoup(htmldata, 'html.parser')
-        print(soup)
-        return (soup)
+        return soup
 
     def get_product_name(soup_object) -> str:
         product_name = soup_object.find(id='productTitle').get_text()
