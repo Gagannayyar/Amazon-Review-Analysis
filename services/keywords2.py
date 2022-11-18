@@ -1,4 +1,4 @@
-from keybert import KeyBERT
+
 import pandas as pd
 import re
 from transformers import pipeline
@@ -31,17 +31,6 @@ class KeyphraseExtractionPipeline(TokenClassificationPipeline):
 model_name = "ml6team/keyphrase-extraction-kbir-inspec"
 extractor = KeyphraseExtractionPipeline(model=model_name)
 
-classifier = pipeline("zero-shot-classification",
-                      model="facebook/bart-large-mnli")
-
-#model = KeyBERT()
-
-
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-
-#keywords = model.extract_keywords(text, keyphrase_ngram_range=(3, 3), 
-#                               stop_words='english',
-#                              use_maxsum=True, nr_candidates=20, top_n=5)
 
 def clean_text(text) -> str:
         """
@@ -57,8 +46,6 @@ def clean_text(text) -> str:
         return text
 df = pd.read_excel('Comments.xlsx')
 df['clean'] = None
-#labels = ["Information", "Complain", "Appreciation"]
-#template = "The sentiment of this review is {}"
 
 for i in range(len(df['Comments'])):
     df['clean'][i] = clean_text(df['Comments'][i])
@@ -67,15 +54,8 @@ for i in range(len(df['Comments'])):
     #       labels)
     #pprint.pprint(predictions)
 
-keywords = []
-text1 = list(df['clean'])
-for i in range(0,len(text1)-31,30):
-    
-    text = " ".join(text1[i:i+30])
-    summarized =summarizer(text)
-    print(summarized)
-    keyword = list(extractor(summarized[0].get('summary_text')))
-    print(keyword)
-    keywords = keywords + keyword
-    print(keywords)
 
+text1 = list(df['clean'])
+text = " ".join(text1)
+keywords = extractor(text)
+print(keywords)
