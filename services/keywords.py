@@ -9,6 +9,7 @@ from transformers import (
 )
 from transformers.pipelines import AggregationStrategy
 import numpy as np
+import pprint
 
 # Define keyphrase extraction pipeline
 class KeyphraseExtractionPipeline(TokenClassificationPipeline):
@@ -30,6 +31,8 @@ class KeyphraseExtractionPipeline(TokenClassificationPipeline):
 model_name = "ml6team/keyphrase-extraction-kbir-inspec"
 extractor = KeyphraseExtractionPipeline(model=model_name)
 
+classifier = pipeline("zero-shot-classification",
+                      model="facebook/bart-large-mnli")
 
 #model = KeyBERT()
 
@@ -54,11 +57,18 @@ def clean_text(text) -> str:
         return text
 df = pd.read_excel('Comments.xlsx')
 df['clean'] = None
+labels = ["Information", "Complain", "Appreciation"]
+template = "The sentiment of this review is {}"
 for i in range(len(df['Comments'])):
     df['clean'][i] = clean_text(df['Comments'][i])
+    print(extractor(df['clean'][i]))
+    predictions = classifier(df['clean'][i], 
+           labels)
+    pprint.pprint(predictions)
 
 text1 = list(df['clean'])
 for i in range(0,len(text1),60):
     text = " ".join(text1[i:i+60])
-    #print(summarizer(text))
+    print(summarizer(text))
+
     print(extractor(text))
