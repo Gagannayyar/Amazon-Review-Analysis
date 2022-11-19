@@ -9,7 +9,7 @@ from transformers import (
 )
 from transformers.pipelines import AggregationStrategy
 import numpy as np
-import pprint
+from fuzzywuzzy import fuzz
 
 # Define keyphrase extraction pipeline
 class KeyphraseExtractionPipeline(TokenClassificationPipeline):
@@ -78,4 +78,39 @@ for i in range(0,len(text1)-31,30):
     print(keyword)
     keywords = keywords + keyword
     print(keywords)
+
+def get_comments_keyword_df(keywords_list,df):
+    dictionary = {
+        "keyword":[],
+        "comments": []
+    }
+    for word in keywords:
+        comments = []
+        for comment in df['Comments']:
+            if word in str(comment):
+                comments.append(comment)
+                 
+        dictionary["keyword"].append(word)
+        dictionary["comments"].append(comments)
+        dataframe = pd.DataFrame(data=dictionary)
+        dataframe = dataframe.explode('comments')
+        
+    return dataframe
+
+def get_most_relevant_keywords(dataframe, occurrence=10):
+    grouped_df = df.groupby('keyword').count()
+    most_used_keywords_df =  grouped_df[grouped_df['comments'] > most_used_range]
+    cleaned_list = [element.lower() for element in most_used_keywords_df.index]
+    return list(set(cleaned_list))
+
+
+def remove_similar_words(words_list):
+    same_words = []
+    for i in words_list:
+        for j in words_list:
+            ratio  = fuzz.ratio(i,j)
+            if ratio < 100 and ratio > 70:
+                same_words.append(i)
+                print(i,j,ratio)
+    return list(set(same_words))
 
