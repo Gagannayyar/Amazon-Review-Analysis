@@ -1,4 +1,6 @@
-from keybert import KeyBERT
+import datetime
+print(datetime.datetime.now())
+
 import pandas as pd
 import re
 from transformers import pipeline
@@ -10,6 +12,10 @@ from transformers import (
 from transformers.pipelines import AggregationStrategy
 import numpy as np
 from fuzzywuzzy import fuzz
+import spacy
+from spacy import displacy
+
+NER = spacy.load("en_core_web_sm")
 
 # Define keyphrase extraction pipeline
 class KeyphraseExtractionPipeline(TokenClassificationPipeline):
@@ -28,20 +34,7 @@ class KeyphraseExtractionPipeline(TokenClassificationPipeline):
         )
         return np.unique([result.get("word").strip() for result in results])
 
-model_name = "ml6team/keyphrase-extraction-kbir-inspec"
-extractor = KeyphraseExtractionPipeline(model=model_name)
 
-classifier = pipeline("zero-shot-classification",
-                      model="facebook/bart-large-mnli")
-
-#model = KeyBERT()
-
-
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-
-#keywords = model.extract_keywords(text, keyphrase_ngram_range=(3, 3), 
-#                               stop_words='english',
-#                              use_maxsum=True, nr_candidates=20, top_n=5)
 
 def clean_text(text) -> str:
         """
@@ -55,31 +48,49 @@ def clean_text(text) -> str:
         rexp=r"\.(?=[A-Za-z]{1,15})"
         text=re.sub(rexp, ". ", text)
         return text
-df = pd.read_excel('Comments.xlsx')
-df['clean'] = None
-#labels = ["Information", "Complain", "Appreciation"]
-#template = "The sentiment of this review is {}"
 
-for i in range(len(df['Comments'])):
-    df['clean'][i] = clean_text(df['Comments'][i])
-    #print(extractor(df['clean'][i]))
-    #predictions = classifier(df['clean'][i], 
-    #       labels)
-    #pprint.pprint(predictions)
 
-keywords = []
-text1 = list(df['clean'])
-for i in range(0,len(text1)-31,30):
-    
-    text = " ".join(text1[i:i+30])
-    summarized =summarizer(text)
-    print(summarized)
-    keyword = list(extractor(summarized[0].get('summary_text')))
-    print(keyword)
-    keywords = keywords + keyword
-    print(keywords)
+def get_all_keywords(df,column):
+    model_name = "ml6team/keyphrase-extraction-kbir-inspec"
+    extractor = KeyphraseExtractionPipeline(model=model_name)
+    classifier = pipeline("zero-shot-classification",
+                      model="facebook/bart-large-mnli")
+    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    keywords = []
+    text1 = list(df[column])
+    for i in range(0,len(text1)-22,20):
+        text = " ".join(text1[i:i+20])
+        print(text)
+        summarized =summarizer(text)
+        print(summarized)
+        keyword = list(extractor(summarized[0].get('summary_text')))
+        ner = NER(summarized[0].get('summary_text'))
+        print(keyword)
 
-def get_comments_keyword_df(keywords_list,df):
+        keywords = keywords + keyword
+        for token in ner:
+            if token.dep_ in ["attr","dobj","nsubj"]:#,"amod","verb","compound verb"]:
+                print(token.text)
+
+    return keywords
+
+def get_most_relevant_keywords(dataframe, occurrence=10):
+    grouped_df = df.groupby('keyword').count()
+    most_used_keywords_df =  grouped_df[grouped_df['comments'] > most_used_range]
+    cleaned_list = [element.lower() for element in most_used_keywords_df.index]
+    return list(set(cleaned_list))
+
+def remove_similar_words(words_list):
+    same_words = []
+    for i in words_list:
+        for j in words_list:
+            ratio  = fuzz.ratio(i,j)
+            if ratio < 100 and ratio > 70:
+                same_words.append(i)
+                print(i,j,ratio)
+    return list(set(same_words))
+
+def get_comments_keyword_df(keywords_list):
     dictionary = {
         "keyword":[],
         "comments": []
@@ -97,20 +108,23 @@ def get_comments_keyword_df(keywords_list,df):
         
     return dataframe
 
-def get_most_relevant_keywords(dataframe, occurrence=10):
-    grouped_df = df.groupby('keyword').count()
-    most_used_keywords_df =  grouped_df[grouped_df['comments'] > most_used_range]
-    cleaned_list = [element.lower() for element in most_used_keywords_df.index]
-    return list(set(cleaned_list))
 
+df = pd.read_excel('Comments.xlsx')
+df['clean'] = None
+#labels = ["Information", "Complain", "Appreciation"]
+#template = "The sentiment of this review is {}"
 
-def remove_similar_words(words_list):
-    same_words = []
-    for i in words_list:
-        for j in words_list:
-            ratio  = fuzz.ratio(i,j)
-            if ratio < 100 and ratio > 70:
-                same_words.append(i)
-                print(i,j,ratio)
-    return list(set(same_words))
+for i in range(len(df['Comments'])):
+    df['clean'][i] = clean_text(df['Comments'][i])
+    #print(extractor(df['clean'][i]))
+    #predictions = classifier(df['clean'][i], 
+    #       labels)
+    #pprint.pprint(predictions)
+
+keywords = get_all_keywords(df, column='clean')
+dataframe = get_comments_keyword_df(keywords_list=keywords)
+relevant_keywords = get_most_relevant_keywords(dataframe=dataframe)
+new_df = get_comments_keyword_df(keywords_list=relevant_)
+
+print(datetime.datetime.now())
 
