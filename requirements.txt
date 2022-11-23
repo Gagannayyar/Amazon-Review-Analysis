@@ -28,3 +28,4 @@ keybert
 rake_nltk
 openpyxl
 pandas
+transformers
